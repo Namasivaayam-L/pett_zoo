@@ -74,7 +74,7 @@ for ep in tqdm(range(num_episodes), desc="Running..", unit="epsiode"):
     terminations = {a: False for a in agents}
     while not all(terminations.values()):
         actions = {ts: agents[ts].act(state[ts]) for ts in env.possible_agents}
-        # print(actions)
+        print(actions)
         next_state, rewards, terminations, truncations, infos = env.step(actions)
         info.update(rewards)
         metrics.append(info.copy())
@@ -86,7 +86,7 @@ for ep in tqdm(range(num_episodes), desc="Running..", unit="epsiode"):
             experience_replay.add(state[ts], actions[ts], rewards[ts], next_state[ts], terminations[ts])
         state = next_state
         info["step"] += 1
-        tqdm.write(f"Progress: {info['step']}/{config['Sumo'].getint('num_seconds')}", end='\r')  # Update progress in-place
+        tqdm.write(f"Progress: {info['step']}/{config['Sumo'].getint('num_seconds')}", end='\r')
     env.save_csv(output_path, ep)
     env.close()
 df = pd.DataFrame(metrics)

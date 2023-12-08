@@ -93,7 +93,7 @@ class Agent:
     def act(self, state):
         state = tf.convert_to_tensor([state])
         actions,_ = self.actor.sample_normal(state)
-        return np.argmax(actions)
+        return actions
         
     def update_network_params(self,tau=None):
         if tau is None:
