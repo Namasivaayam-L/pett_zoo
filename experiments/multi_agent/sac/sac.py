@@ -66,7 +66,7 @@ class ActorNetwork(Base):
         return action, log_probs
 
 class Agent:
-    def __init__(self, state_dim, action_dim, learning_rate, gamma, tau, model_path,num_layers=5, width=32, reward_scale=1):
+    def __init__(self, state_dim, action_dim, max_action, learning_rate, gamma, tau, model_path,num_layers=5, width=32, reward_scale=1):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.learning_rate = learning_rate
@@ -74,7 +74,7 @@ class Agent:
         self.tau = tau
         self.num_layers = num_layers 
         self.width = width 
-        self.max_action = action_dim-1
+        self.max_action = max_action
         self.model_path = model_path
         self.reward_scale = reward_scale
         self.actor = ActorNetwork(action_dim, self.num_layers, self.width, self.model_path, self.max_action, name='Actor')

@@ -55,6 +55,7 @@ agents = {
     ts: sac.Agent(
         env.observation_spaces[ts].shape[0],
         env.action_spaces[ts].n,
+        env.action_spaces[ts].high,
         learning_rate,
         gamma,
         tau,
