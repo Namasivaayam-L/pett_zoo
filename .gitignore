@@ -1,5 +1,3 @@
 outputs/
 sumo_rl.egg-info/
-pyproject.toml
-setup.py
 models
