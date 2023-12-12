@@ -20,7 +20,7 @@ def plot_and_save(csv_file_path):
     plt.figure(figsize=(10, 6))
     # for i in range(reward_cols.shape[1]+1):
     #     plt.plot(ep_col, reward_cols.iloc[:, i], label=f"TS: {i + 1}")
-    plt.plot(ep_col, reward_cols, label=f"DQN Rewards Combined")
+    plt.plot(ep_col, reward_cols, label=f"SAC Rewards Combined")
     plt.legend()
 
     # Save the plot as a PNG image

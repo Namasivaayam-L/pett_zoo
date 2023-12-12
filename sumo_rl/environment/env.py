@@ -101,7 +101,7 @@ class SumoEnvironment(gym.Env):
         add_per_agent_info: bool = True,
         sumo_seed: Union[str, int] = "random",
         fixed_ts: bool = False,
-        sumo_warnings: bool = True,
+        sumo_warnings: bool = False,
         additional_sumo_cmd: Optional[str] = None,
         render_mode: Optional[str] = None,
     ) -> None:
@@ -471,7 +471,7 @@ class SumoEnvironment(gym.Env):
         if out_csv_name is not None:
             df = pd.DataFrame(self.metrics)
             Path(Path(out_csv_name).parent).mkdir(parents=True, exist_ok=True)
-            df.to_csv(out_csv_name + f"_ep{episode}" + ".csv", index=False)
+            df.to_csv(out_csv_name + f"{episode}ep" + ".csv", index=False)
 
     # Below functions are for discrete state space
 

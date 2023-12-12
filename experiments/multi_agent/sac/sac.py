@@ -4,7 +4,12 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.losses import MeanSquaredError
 import tensorflow_probability as tfp
-import numpy as np
+import os
+
+# Set logging level to suppress warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any other level you prefer
+
+tf.get_logger().setLevel('ERROR')
 
 class Base(Model):
     def __init__(self, n_actions, num_layers, width, model_path, name="critic"):
@@ -57,21 +62,23 @@ class ActorNetwork(Base):
         mu, sigma = self.call(state)
         probs = tfp.distributions.Normal(mu, sigma)
         actions = probs.sample()
-        # print(actions)
         action = tf.math.tanh(actions) * self.max_action
         log_probs = probs.log_prob(actions)
+        action = tf.clip_by_value(action, clip_value_min=-1.0, clip_value_max=1.0)
         log_probs -= tf.math.log(1 - tf.math.pow(action, 2) + self.noise)
         log_probs = tf.math.reduce_sum(log_probs, axis=1, keepdims=True)
-        # print(action)
-        return action, log_probs
+        entropy =  tf.reduce_sum( probs.entropy(), axis=1, keepdims=True)
+        return action, log_probs, entropy
 
 class Agent:
-    def __init__(self, state_dim, action_dim, max_action, learning_rate, gamma, tau, model_path,num_layers=5, width=32, reward_scale=1):
+    def __init__(self, state_dim, action_dim, max_action, learning_rate, epsilon, gamma, tau, decay_rate, model_path,num_layers=5, width=32, reward_scale=1):
         self.state_dim = state_dim
         self.action_dim = action_dim
         self.learning_rate = learning_rate
         self.gamma = gamma
+        self.epsilon = epsilon
         self.tau = tau
+        self.decay_rate = decay_rate
         self.num_layers = num_layers 
         self.width = width 
         self.max_action = max_action
@@ -92,7 +99,7 @@ class Agent:
         # self.update_network_params(tau=1)
     def act(self, state):
         state = tf.convert_to_tensor([state])
-        actions,_ = self.actor.sample_normal(state)
+        actions,_, _ = self.actor.sample_normal(state)
         return actions
         
     def update_network_params(self,tau=None):
@@ -111,7 +118,7 @@ class Agent:
             val = tf.squeeze(self.value(states),1)
             next_val = tf.squeeze(self.target_value(next_states),1)
 
-            curr_pol_actions, log_probs = self.actor.sample_normal(states)
+            curr_pol_actions, log_probs, _ = self.actor.sample_normal(states)
             log_probs = tf.squeeze(log_probs,1)
             q1_new_pol = self.critic_1(states,curr_pol_actions)
             q2_new_pol = self.critic_2(states,curr_pol_actions)
@@ -123,24 +130,23 @@ class Agent:
         self.value.optimizer.apply_gradients(zip(val_nwk_grad, self.value.trainable_variables))
         
         with tf.GradientTape() as tape:
-            new_pol_actions, log_probs = self.actor.sample_normal(states)
+            new_pol_actions, log_probs, entropy = self.actor.sample_normal(states)
             log_probs = tf.squeeze(log_probs,1)
             q1_new_pol = self.critic_1(states,new_pol_actions)
             q2_new_pol = self.critic_2(states,new_pol_actions)
             critic_val = tf.squeeze(tf.math.minimum(q1_new_pol,q2_new_pol),1)
-            
-            actor_loss = log_probs - critic_val
-            actor_loss = tf.math.reduce_mean(actor_loss)
-        actor_nwk_grad = tape.gradient(actor_loss, self.value.trainable_variables)
-        print(actor_nwk_grad, actor_loss)
-        self.value.optimizer.apply_gradients(zip(actor_nwk_grad, self.value.trainable_variables))
+            # actor_loss = - log_probs * critic_val
+            actor_loss = -log_probs * critic_val + self.epsilon * tf.reduce_mean(entropy)
+            self.epsilon *= self.decay_rate
+        actor_nwk_grad = tape.gradient(actor_loss, self.actor.trainable_variables)
+        self.actor.optimizer.apply_gradients(zip(actor_nwk_grad, self.actor.trainable_variables))
 
         with tf.GradientTape(persistent=True) as tape:
-            q_hat = self.scale * rewards + self.gamma * next_val * (1 - dones)
+            q_hat = self.reward_scale * rewards + self.gamma* next_val * (1 - dones)
             q1_old_pol = tf.squeeze(self.critic_1(states,actions),1)
             q2_old_pol = tf.squeeze(self.critic_2(states,actions),1)
-            critic_1_loss = 0.5 * MeanSquaredError(q1_old_pol, q_hat)
-            critic_2_loss = 0.5 * MeanSquaredError(q2_old_pol, q_hat)
+            critic_1_loss = 0.5 * MeanSquaredError()(q1_old_pol, q_hat)
+            critic_2_loss = 0.5 * MeanSquaredError()(q2_old_pol, q_hat)
         critic_1_nwk_grad = tape.gradient(critic_1_loss, self.critic_1.trainable_variables)
         critic_2_nwk_grad = tape.gradient(critic_2_loss, self.critic_2.trainable_variables)
         self.critic_1.optimizer.apply_gradients(zip(critic_1_nwk_grad, self.critic_1.trainable_variables))
@@ -148,19 +154,17 @@ class Agent:
         
         self.update_network_params()
         
-    def save_models(self):
-        print("Saving Models...")
-        self.actor.save_weights(self.model_path+self.actor.model_name)
-        self.critic_1.save_weights(self.model_path+self.actor.model_name)
-        self.critic_2.save_weights(self.model_path+self.actor.model_name)
-        self.value.save_weights(self.model_path+self.actor.model_name)
-        self.target_value.save_weights(self.model_path+self.actor.model_name)
+    def save_models(self, ts):
+        self.actor.save_weights(self.model_path+f'{ts}-'+self.actor.model_name+'.chkpt')
+        self.critic_1.save_weights(self.model_path+f'{ts}-'+self.critic_1.model_name+'.chkpt')
+        self.critic_2.save_weights(self.model_path+f'{ts}-'+self.critic_2.model_name+'.chkpt')
+        self.value.save_weights(self.model_path+f'{ts}-'+self.value.model_name+'.chkpt')
+        self.target_value.save_weights(self.model_path+f'{ts}-'+self.target_value.model_name+'.chkpt')
 
-    def load_models(self):
-        print("Saving Models...")
-        self.actor.load_weights(self.model_path+self.actor.model_name)
-        self.critic_1.load_weights(self.model_path+self.actor.model_name)
-        self.critic_2.load_weights(self.model_path+self.actor.model_name)
-        self.value.load_weights(self.model_path+self.actor.model_name)
-        self.target_value.load_weights(self.model_path+self.actor.model_name)
+    def load_models(self, ts):
+        self.actor.load_weights(self.model_path+f'{ts}-'+self.actor.model_name+'.chkpt')
+        self.critic_1.load_weights(self.model_path+f'{ts}-'+self.critic_1.model_name+'.chkpt')
+        self.critic_2.load_weights(self.model_path+f'{ts}-'+self.critic_2.model_name+'.chkpt')
+        self.value.load_weights(self.model_path+f'{ts}-'+self.value.model_name+'.chkpt')
+        self.target_value.load_weights(self.model_path+f'{ts}-'+self.target_value.model_name+'.chkpt')
         
