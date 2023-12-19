@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-12-19 20:18:45.492364 by randomTrips.py UNKNOWN
+<configuration>
+    <net-file value="nets/2x2/2x2.net.xml"/>
+    <route-file value="nets/2x2/2x2-p80.rou.xml"/>
+    <period value="80.0"/>
+</configuration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <trip id="0" depart="0.00" from="h22" to="-h12"/>
+    <trip id="1" depart="80.00" from="-v11" to="-h23"/>
+    <trip id="2" depart="160.00" from="h23" to="h21"/>
+    <trip id="3" depart="240.00" from="v22" to="-h13"/>
+    <trip id="4" depart="320.00" from="-v21" to="-h12"/>
+    <trip id="5" depart="400.00" from="-h22" to="h11"/>
+    <trip id="6" depart="480.00" from="-h11" to="-h23"/>
+    <trip id="7" depart="560.00" from="h22" to="h11"/>
+    <trip id="8" depart="640.00" from="-h22" to="h12"/>
+    <trip id="9" depart="720.00" from="v12" to="-h12"/>
+    <trip id="10" depart="800.00" from="v12" to="h22"/>
+    <trip id="11" depart="880.00" from="-v12" to="-h22"/>
+    <trip id="12" depart="960.00" from="v23" to="-v13"/>
+    <trip id="13" depart="1040.00" from="-h12" to="-h13"/>
+    <trip id="14" depart="1120.00" from="v13" to="h12"/>
+    <trip id="15" depart="1200.00" from="v12" to="h22"/>
+    <trip id="16" depart="1280.00" from="h12" to="v22"/>
+    <trip id="17" depart="1360.00" from="-v21" to="h11"/>
+    <trip id="18" depart="1440.00" from="v13" to="h12"/>
+    <trip id="19" depart="1520.00" from="v13" to="h12"/>
+    <trip id="20" depart="1600.00" from="h23" to="-h12"/>
+    <trip id="21" depart="1680.00" from="-h22" to="-v12"/>
+    <trip id="22" depart="1760.00" from="-h12" to="-h23"/>
+    <trip id="23" depart="1840.00" from="-h12" to="-v12"/>
+    <trip id="24" depart="1920.00" from="h22" to="-v13"/>
+    <trip id="25" depart="2000.00" from="-v12" to="-h23"/>
+    <trip id="26" depart="2080.00" from="-v11" to="v21"/>
+    <trip id="27" depart="2160.00" from="h22" to="h12"/>
+    <trip id="28" depart="2240.00" from="-h21" to="h22"/>
+    <trip id="29" depart="2320.00" from="-h21" to="-v22"/>
+    <trip id="30" depart="2400.00" from="v23" to="h21"/>
+    <trip id="31" depart="2480.00" from="h12" to="h21"/>
+    <trip id="32" depart="2560.00" from="v13" to="v11"/>
+    <trip id="33" depart="2640.00" from="-h22" to="-h12"/>
+    <trip id="34" depart="2720.00" from="-v12" to="-v12"/>
+    <trip id="35" depart="2800.00" from="-h22" to="v22"/>
+    <trip id="36" depart="2880.00" from="v22" to="-v13"/>
+    <trip id="37" depart="2960.00" from="h22" to="-v22"/>
+    <trip id="38" depart="3040.00" from="v22" to="-v23"/>
+    <trip id="39" depart="3120.00" from="-v11" to="-h23"/>
+    <trip id="40" depart="3200.00" from="h12" to="-v12"/>
+    <trip id="41" depart="3280.00" from="h13" to="v21"/>
+    <trip id="42" depart="3360.00" from="-v21" to="-h23"/>
+    <trip id="43" depart="3440.00" from="v23" to="h11"/>
+    <trip id="44" depart="3520.00" from="-h12" to="-h12"/>
+</routes>
