@@ -12,7 +12,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any other level you prefer
 tf.get_logger().setLevel('ERROR')
 
 class Base(Model):
-    def __init__(self, n_actions, num_layers, width, model_path, name="critic"):
+    def __init__(self, n_actions, num_layers, width, model_path, name=" critic"):
         super(Base, self).__init__()
         self.n_actions = n_actions
         self.num_layers = num_layers

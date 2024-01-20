@@ -9,8 +9,6 @@ if "SUMO_HOME" in os.environ:
 else:
     sys.exit("Please declare the environment variable 'SUMO_HOME'")
 
-time = time.strftime("%H:%M:%S_%d-%m-%Y")
-
 ini_file = "experiments/multi_agent/sac/config.ini"
 config = configparser.ConfigParser()
 config.read(ini_file)
