@@ -15,7 +15,7 @@ config.read(ini_file)
 
 output_path = config["Sumo"]["out_dir"]
 model_path = output_path + "models/"
-log_path = output_path + "logs/"
+os.makedirs(model_path,exist_ok=True)
 fine_tune_model_path = None
 if config["Model"].getboolean("fine_tune"):
     fine_tune_model_path = config["Model"]["fine_tune_model_path"]
